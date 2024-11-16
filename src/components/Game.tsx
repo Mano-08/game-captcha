@@ -341,7 +341,6 @@ function Game() {
         setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
           return { message: "You lost!", type: "lost" };
         });
-        await onChallengeResponse(true);
       }
       if (i === player.row + 1) {
         movePlayer("down");
