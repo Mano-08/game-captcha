@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+.lava-image {
+  animation: lavaMotion 3s infinite linear;
+}
+@keyframes lavaMotion {
+  0% {
+    filter: brightness(100%) saturate(1);
+  }
+  50% {
+    filter: brightness(120%) saturate(1.2);
+  }
+  100% {
+    filter: brightness(100%) saturate(1);
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-blink {
+  animation: blink 0.35s infinite;
+}
