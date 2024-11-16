@@ -5,7 +5,7 @@ import React from "react";
 import sandImage from "../../public/path.png";
 import lavaImage from "../../public/lava.jpeg";
 import castleImage from "../../public/castle.png";
-import playerImage from "../../public/player2.png";
+import playerImage from "../../public/player.png";
 import {
   onChallengeResponse,
   onChallengeExpired,
