@@ -1,15 +1,28 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import sandImage from "../../public/path.png";
 import lavaImage from "../../public/lava.jpeg";
-// import micImage from "../../public/speaker.png";
 import castleImage from "../../public/castle.png";
 import playerImage from "../../public/player2.png";
+import {
+  onChallengeResponse,
+  onChallengeExpired,
+  onChallengeError,
+} from "@gotcha-widget/lib";
 
 function Game() {
   const GRID_SIZE = 7;
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef1 = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef2 = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef3 = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef4 = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRefTimer = useRef<NodeJS.Timeout | null>(null);
+  const [time, setTime] = useState(120);
+  const [displayInst, setDisplayInst] = useState<boolean>(false);
   const [gap2, setGap2] = useState<{
     row: number;
     col: number;
@@ -20,9 +33,9 @@ function Game() {
     col: number;
     status: "blink" | "gap";
   } | null>(null);
-  const [gameStatus, setGameStatus] = useState<"won" | "lost" | "playing">(
-    "playing"
-  );
+  const [gameStatus, setGameStatus] = useState<
+    "won" | "lost" | "playing" | "not_started" | "restart"
+  >("not_started");
   const [display, setDisplay] = useState<{
     message: string;
     type: "won" | "lost" | null;
@@ -30,22 +43,78 @@ function Game() {
   const [path, setPath] = useState<number[][]>(
     Array(GRID_SIZE).fill(Array(GRID_SIZE).fill(0))
   );
+  const [playMusic, setPlayMusic] = useState<boolean>(false);
   const [player, setPlayer] = useState({ row: GRID_SIZE - 1, col: 0 });
 
   useEffect(() => {
-    generatePath();
+    if (gameStatus === "playing") {
+      generatePath();
+    } else if (gameStatus === "restart") {
+      resetPath();
+      setDisplay({ message: "", type: null });
+      setPlayer((old) => {
+        return { ...old, row: GRID_SIZE - 1, col: 0 };
+      });
+      intervalRef.current && clearInterval(intervalRef.current);
+      timeoutRef1.current && clearTimeout(timeoutRef1.current);
+      timeoutRef2.current && clearTimeout(timeoutRef2.current);
+      timeoutRef3.current && clearTimeout(timeoutRef3.current);
+      timeoutRef4.current && clearTimeout(timeoutRef4.current);
+      setGameStatus("not_started");
+    }
+  }, [gameStatus]);
+
+  function resetPath() {
+    setPath((old) => {
+      const newPath = old.map((row) => row.map((col) => 0));
+      return newPath;
+    });
+  }
+
+  const handleGameCaptcha = async (gameStatus: string) => {
+    if (gameStatus === "lost") {
+      await onChallengeResponse(false);
+    } else if (gameStatus === "won") {
+      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+      await onChallengeResponse(true);
+    } else if (gameStatus === "expired") {
+      await onChallengeExpired();
+    }
+  };
+  useEffect(() => {
+    handleGameCaptcha(gameStatus);
+  }, [gameStatus]);
+
+  useEffect(() => {
+    if (musicRef.current) {
+      musicRef.current.volume = 0.2;
+    }
   }, []);
 
   useEffect(() => {
-    if (getCount() !== 0) {
+    playMusic && (musicRef.current as HTMLAudioElement)?.play();
+    !playMusic && (musicRef.current as HTMLAudioElement)?.pause();
+  }, [playMusic]);
+
+  useEffect(() => {
+    if (getCount() !== 0 && gameStatus === "playing") {
       generateGap("GAP_1");
       generateGap("GAP_2");
-      setInterval(() => {
+      intervalRef.current = setInterval(() => {
         generateGap("GAP_1");
         generateGap("GAP_2");
-      }, 4000);
+      }, 4100);
     }
-  }, [path[0], path[1], path[2], path[3], path[4], path[5], path[6]]);
+  }, [
+    gameStatus,
+    path[0],
+    path[1],
+    path[2],
+    path[3],
+    path[4],
+    path[5],
+    path[6],
+  ]);
 
   const movePlayer = (direction: string) => {
     if (gameStatus !== "playing") return;
@@ -108,7 +177,7 @@ function Game() {
 
       if (path[row][col] === 1) {
         if (type === "GAP_1") {
-          setTimeout(() => {
+          timeoutRef1.current = setTimeout(() => {
             setGap((old) => {
               return { row, col, status: "gap" };
             });
@@ -116,14 +185,14 @@ function Game() {
           setGap((old) => {
             return { row, col, status: "blink" };
           });
-          setTimeout(() => {
+          timeoutRef2.current = setTimeout(() => {
             setGap((old) => {
               return null;
             });
           }, 4000);
           break;
         } else {
-          setTimeout(() => {
+          timeoutRef3.current = setTimeout(() => {
             setGap2((old) => {
               return { row, col, status: "gap" };
             });
@@ -131,7 +200,7 @@ function Game() {
           setGap2((old) => {
             return { row, col, status: "blink" };
           });
-          setTimeout(() => {
+          timeoutRef4.current = setTimeout(() => {
             setGap2((old) => {
               return null;
             });
@@ -173,7 +242,6 @@ function Game() {
       }
 
       if (
-        (player.row !== GRID_SIZE - 1 || player.col !== 0) &&
         path[player.row][player.col] === 1 &&
         gap?.row === player.row &&
         gap?.col === player.col &&
@@ -186,7 +254,6 @@ function Game() {
       }
 
       if (
-        (player.row !== GRID_SIZE - 1 || player.col !== 0) &&
         path[player.row][player.col] === 1 &&
         gap2?.row === player.row &&
         gap2?.col === player.col &&
@@ -217,52 +284,19 @@ function Game() {
   ]);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      switch (event.key) {
-        case "ArrowUp":
-          movePlayer("up");
-          break;
-        case "ArrowDown":
-          movePlayer("down");
-          break;
-        case "ArrowLeft":
-          movePlayer("left");
-          break;
-        case "ArrowRight":
-          movePlayer("right");
-          break;
-        case "w":
-          movePlayer("up");
-          break;
-        case "s":
-          movePlayer("down");
-          break;
-        case "a":
-          movePlayer("left");
-          break;
-        case "d":
-          movePlayer("right");
-          break;
-        default:
-          break;
-      }
-    };
+    if (time <= 0) return;
 
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [
-    gameStatus,
-    path[0],
-    path[1],
-    path[2],
-    path[3],
-    path[4],
-    path[5],
-    path[6],
-  ]);
+    timeoutRefTimer.current = setInterval(() => {
+      setTime((prevTime) => {
+        if (prevTime - 1 <= 0) {
+          timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+          setDisplay({ message: "EXPIRED", type: "lost" });
+          handleGameCaptcha("expired");
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+  }, []);
 
   function generatePath() {
     setPath((old) => {
@@ -293,18 +327,65 @@ function Game() {
           }
         }
       }
-      console.log(newPath);
       return newPath;
     });
   }
+  async function handleClick(i: number, j: number, col: number) {
+    if (gameStatus !== "playing") return;
+    if (
+      ((i === player.row + 1 || i === player.row - 1) && j === player.col) ||
+      ((j === player.col + 1 || j === player.col - 1) && i === player.row)
+    ) {
+      if (col === 0) {
+        setGameStatus("lost");
+        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+          return { message: "You lost!", type: "lost" };
+        });
+        await onChallengeResponse(true);
+      }
+      if (i === player.row + 1) {
+        movePlayer("down");
+      } else if (i === player.row - 1) {
+        movePlayer("up");
+      }
+      if (j === player.col + 1) {
+        movePlayer("right");
+      } else if (j === player.col - 1) {
+        movePlayer("left");
+      }
+    }
+  }
   return (
     <main className="w-screen min-h-screen">
-      <div className="container h-screen flex flex-col items-center justify-center">
+      <div className="container mx-auto h-screen flex flex-col items-center justify-center">
         <div className="p-10 flex flex-col gap-3 bg-zinc-800 rounded-lg">
-          <div className="h-[400px] w-[400px] rounded-md relative">
+          <div className="h-[400px] w-[400px] rounded-md overflow-hidden relative">
+            {displayInst && (
+              <div className=" text-black h-full flex flex-col w-full z-[2922992929229] top-0 left-0 rounded-md absolute bg-orange-400">
+                <div className="flex flex-row justify-between py-2 border-b border-solid border-orange-300">
+                  <p className="flex px-4 py-2 text-lg">instructions</p>
+                  <button
+                    className="text-red-900 px-3 text-2xl"
+                    onClick={() => setDisplayInst(false)}
+                  >
+                    X
+                  </button>
+                </div>
+                <ol className="list-decimal px-6">
+                  <li>help knight reach the castle safely</li>
+                  <li>
+                    use mouse click on knight's immediate adjacent cell to
+                    navigate
+                  </li>
+                  <li>beware of the the goofy disappearing tiles</li>
+                  <li>complete the challenge within 120 seconds</li>
+                  <li>good luck! the time is ticking</li>
+                </ol>
+              </div>
+            )}
             <div
               style={display.type ? { display: "block" } : { display: "none" }}
-              className="text-center absolute w-full top-[45%] bg-black z-[1000000] left-0 py-4 "
+              className="text-center absolute w-full top-[45%] bg-black z-[939393939939] left-0 py-4 "
             >
               {display.type && (
                 <div
@@ -321,7 +402,8 @@ function Game() {
                 {row.map((col, j) => (
                   <div
                     key={"r" + i + "c" + j}
-                    className={`w-1/5 h-1/5 relative`}
+                    onClick={() => handleClick(i, j, col)}
+                    className={`w-1/5 h-1/5 relative cursor-pointer`}
                   >
                     <Image
                       src={castleImage}
@@ -333,7 +415,7 @@ function Game() {
                           ? { display: "block" }
                           : { display: "none" }
                       }
-                      className="absolute top-0 left-0 bg-black"
+                      className="absolute top-0 left-0 z-[22020202] bg-black"
                     />
                     {col === 1 ? (
                       (gap?.row === i && gap?.col === j) ||
@@ -344,14 +426,14 @@ function Game() {
                             width={400 / GRID_SIZE}
                             height={400 / GRID_SIZE}
                             className="animate-blink"
-                            alt="player"
+                            alt="sand"
                           />
                         ) : (
                           <Image
                             src={lavaImage.src}
                             width={400 / GRID_SIZE}
                             height={400 / GRID_SIZE}
-                            alt="player"
+                            alt="lava"
                           />
                         )
                       ) : (
@@ -359,15 +441,24 @@ function Game() {
                           src={sandImage.src}
                           width={400 / GRID_SIZE}
                           height={400 / GRID_SIZE}
-                          alt="player"
+                          alt="sand"
                         />
                       )
+                    ) : gameStatus === "not_started" &&
+                      i === GRID_SIZE - 1 &&
+                      j === 0 ? (
+                      <Image
+                        src={sandImage.src}
+                        width={400 / GRID_SIZE}
+                        height={400 / GRID_SIZE}
+                        alt="sand"
+                      />
                     ) : (
                       <Image
                         src={lavaImage.src}
                         width={400 / GRID_SIZE}
                         height={400 / GRID_SIZE}
-                        alt="player"
+                        alt="lava"
                         className="lava-image"
                       />
                     )}
@@ -386,8 +477,31 @@ function Game() {
               </div>
             ))}
           </div>
+          <div className="flex flex-row items-center justify-between">
+            <div className="flex flex-row items-center gap-5">
+              <button onClick={() => setPlayMusic(!playMusic)}>music</button>
+              <button onClick={() => setDisplayInst(!displayInst)}>
+                instructions
+              </button>
+              {gameStatus === "not_started" ? (
+                <button onClick={() => setGameStatus("playing")}>start</button>
+              ) : (
+                gameStatus !== "won" && (
+                  <button onClick={() => setGameStatus("restart")}>
+                    reset
+                  </button>
+                )
+              )}
+            </div>
+            <div className="flex flex-row items-center gap-3">
+              <p>{time}s left</p>
+              <div className="h-3 w-3 bg-red-700 rounded-full"></div>
+              <div className="h-3 w-3 bg-green-700 rounded-full"></div>
+            </div>
+          </div>
         </div>
       </div>
+      <audio ref={musicRef} src="/audio/re.mp3" />
     </main>
   );
 }
