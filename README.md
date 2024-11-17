@@ -1,6 +1,6 @@
 # Castle Quest: Gamified CAPTCHA Challenge
 
-An interactive, dynamic and gamified CAPTCHA alternative that verifies users to secure crypto faucet and airdrop claims. The users verify themselves by helping the knight reach the castle by navigating through a challenging matrix.
+A fun and interactive CAPTCHA alternative that verifies users by having them guide a knight through a challenging maze to reach the castle.
 
 ## Key Features
 
