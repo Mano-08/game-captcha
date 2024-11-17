@@ -232,7 +232,13 @@ function Game() {
       let row = Math.floor(Math.random() * GRID_SIZE);
       let col = Math.floor(Math.random() * GRID_SIZE);
 
+      // don't generate gap on castle
       if (row === 0 && col === GRID_SIZE - 1) {
+        continue;
+      }
+
+      // don't generate gap on start position to let player understand the game
+      if (row === GRID_SIZE - 1 && col === 0) {
         continue;
       }
 
@@ -358,7 +364,8 @@ function Game() {
                 <ol className="list-decimal px-6 py-1">
                   <li>help knight reach the castle safely</li>
                   <li>click on knight's adjacent cell to move</li>
-                  <li>beware of the the goofy disappearing tiles</li>
+                  <li>beware of the disappearing tiles</li>
+                  <li>tiles blink before they disappear</li>
                   <li>complete the challenge within {TIME_LIMIT} seconds</li>
                   <li>good luck!</li>
                 </ol>
