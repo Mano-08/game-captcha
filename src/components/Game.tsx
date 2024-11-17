@@ -14,7 +14,7 @@ import {
 
 function Game() {
   const GRID_SIZE = 7;
-  const TIME_LIMIT = 60;
+  const TIME_LIMIT = 30;
 
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,7 +36,7 @@ function Game() {
     status: "blink" | "gap";
   } | null>(null);
   const [gameStatus, setGameStatus] = useState<
-    "won" | "lost" | "playing" | "not_started"
+    "won" | "lost" | "playing" | "not_started" | "expired"
   >("not_started");
   const [display, setDisplay] = useState<{
     message: string;
@@ -50,6 +50,16 @@ function Game() {
 
   useEffect(() => {
     if (gameStatus === "playing") {
+      timeoutRefTimer.current = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime - 1 <= 0) {
+            timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+            setDisplay({ message: "EXPIRED", type: "lost" });
+            setGameStatus("expired");
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
       setDisplayInst(false);
       generatePath();
     }
@@ -229,7 +239,7 @@ function Game() {
   }
 
   useEffect(() => {
-    if (getCount() !== 0) {
+    if (getCount() !== 0 && gameStatus === "playing") {
       if (player.row === 0 && player.col === GRID_SIZE - 1) {
         setGameStatus("won");
         setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
@@ -271,6 +281,7 @@ function Game() {
       }
     }
   }, [
+    gameStatus,
     gap,
     gap?.row,
     gap?.col,
@@ -287,21 +298,6 @@ function Game() {
     path[5],
     path[6],
   ]);
-
-  useEffect(() => {
-    if (time <= 0) return;
-
-    timeoutRefTimer.current = setInterval(() => {
-      setTime((prevTime) => {
-        if (prevTime - 1 <= 0) {
-          timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
-          setDisplay({ message: "EXPIRED", type: "lost" });
-          handleGameCaptcha("expired");
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-  }, []);
 
   function generatePath() {
     setPath((old) => {

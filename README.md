@@ -21,7 +21,7 @@ A fun and interactive CAPTCHA alternative that verifies users by having them gui
 - There are disappearing tiles in the game, they blink for 1 second before disappearing.
 - Disappeared tiles come back to normal after 4 seconds.
 - If the knight falls into the lava, the game is over.
-- Complete the challenge within 60 seconds.
+- Complete the challenge within 30 seconds.
 
 ## Live links
 
