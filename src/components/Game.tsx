@@ -182,9 +182,6 @@ function Game() {
     while (true) {
       let row = Math.floor(Math.random() * GRID_SIZE);
       let col = Math.floor(Math.random() * GRID_SIZE);
-      if (row < GRID_SIZE / 3 && col < GRID_SIZE / 3) {
-        continue;
-      }
 
       if (row === 0 && col === GRID_SIZE - 1) {
         continue;
@@ -205,7 +202,6 @@ function Game() {
               return null;
             });
           }, 4000);
-          break;
         } else {
           timeoutRef3.current = setTimeout(() => {
             setGap2((old) => {
@@ -220,8 +216,8 @@ function Game() {
               return null;
             });
           }, 4000);
-          break;
         }
+        break;
       }
     }
   }
@@ -376,13 +372,14 @@ function Game() {
                   <li>click on knight's adjacent cell to move</li>
                   <li>beware of the the goofy disappearing tiles</li>
                   <li>complete the challenge within {TIME_LIMIT} seconds</li>
-                  <li>good luck! the time is ticking</li>
-                  <li className="text-green-500">
-                    <button onClick={() => setGameStatus("playing")}>
-                      CLICK start to play
-                    </button>
-                  </li>
+                  <li>good luck!</li>
                 </ol>
+                <button
+                  onClick={() => setGameStatus("playing")}
+                  className="bg-green-700 py-1 mt-2 mx-3 rounded-lg text-white"
+                >
+                  START
+                </button>
               </div>
             )}
             <div
@@ -481,14 +478,6 @@ function Game() {
           </div>
           <div className="flex flex-row items-center justify-between">
             <div className="flex flex-row items-center gap-5">
-              {gameStatus === "not_started" && (
-                <button
-                  // className="border-solid border-2 rounded-md border-neutral-600 px-1 py-0.5"
-                  onClick={() => setGameStatus("playing")}
-                >
-                  start
-                </button>
-              )}
               <button
                 // className="py-0.5"
                 onClick={() => setPlayMusic(!playMusic)}
