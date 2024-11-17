@@ -13,8 +13,10 @@ import {
 } from "@gotcha-widget/lib";
 
 function Game() {
-  const GRID_SIZE = 7;
-  const TIME_LIMIT = 30;
+  const GRID_SIZE = 7; // 7 x 7 grid
+  const TIME_LIMIT = 30; // in seconds
+  const GAP_LIFETIME = 4000; // in milliseconds
+  const GAP_BLINK_LIFETIME = 1500; // in milliseconds
 
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -78,24 +80,6 @@ function Game() {
     // }
   }, [gameStatus]);
 
-  function resetPath() {
-    setPath((old) => {
-      const newPath = old.map((row) => row.map((col) => 0));
-      return newPath;
-    });
-  }
-
-  const handleGameCaptcha = async (gameStatus: string) => {
-    if (gameStatus === "lost") {
-      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
-      await onChallengeResponse(false);
-    } else if (gameStatus === "won") {
-      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
-      await onChallengeResponse(true);
-    } else if (gameStatus === "expired") {
-      await onChallengeExpired();
-    }
-  };
   useEffect(() => {
     handleGameCaptcha(gameStatus);
   }, [gameStatus]);
@@ -118,18 +102,83 @@ function Game() {
       intervalRef.current = setInterval(() => {
         generateGap("GAP_1");
         generateGap("GAP_2");
-      }, 4100);
+      }, GAP_LIFETIME + 100);
+    }
+  }, [gameStatus, ...path]);
+
+  useEffect(() => {
+    if (getCount() !== 0 && gameStatus === "playing") {
+      if (player.row === 0 && player.col === GRID_SIZE - 1) {
+        setGameStatus("won");
+        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+          return { message: "Verified!", type: "won" };
+        });
+      }
+      if (
+        (player.row !== GRID_SIZE - 1 || player.col !== 0) &&
+        path[player.row][player.col] === 0
+      ) {
+        setGameStatus("lost");
+        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+          return { message: "You lost!", type: "lost" };
+        });
+      }
+
+      if (
+        path[player.row][player.col] === 1 &&
+        gap?.row === player.row &&
+        gap?.col === player.col &&
+        gap?.status === "gap"
+      ) {
+        setGameStatus("lost");
+        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+          return { message: "You lost!", type: "lost" };
+        });
+      }
+
+      if (
+        path[player.row][player.col] === 1 &&
+        gap2?.row === player.row &&
+        gap2?.col === player.col &&
+        gap2?.status === "gap"
+      ) {
+        setGameStatus("lost");
+        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+          return { message: "You lost!", type: "lost" };
+        });
+      }
     }
   }, [
     gameStatus,
-    path[0],
-    path[1],
-    path[2],
-    path[3],
-    path[4],
-    path[5],
-    path[6],
+    gap,
+    gap?.row,
+    gap?.col,
+    gap2,
+    gap2?.row,
+    gap2?.col,
+    player.row,
+    player.col,
+    ...path,
   ]);
+
+  function resetPath() {
+    setPath((old) => {
+      const newPath = old.map((row) => row.map((col) => 0));
+      return newPath;
+    });
+  }
+
+  const handleGameCaptcha = async (gameStatus: string) => {
+    if (gameStatus === "lost") {
+      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+      await onChallengeResponse(false);
+    } else if (gameStatus === "won") {
+      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+      await onChallengeResponse(true);
+    } else if (gameStatus === "expired") {
+      await onChallengeExpired();
+    }
+  };
 
   const movePlayer = (direction: string) => {
     if (gameStatus !== "playing") return;
@@ -193,7 +242,7 @@ function Game() {
             setGap((old) => {
               return { row, col, status: "gap" };
             });
-          }, 1500);
+          }, GAP_BLINK_LIFETIME);
           setGap((old) => {
             return { row, col, status: "blink" };
           });
@@ -201,13 +250,13 @@ function Game() {
             setGap((old) => {
               return null;
             });
-          }, 4000);
+          }, GAP_LIFETIME);
         } else {
           timeoutRef3.current = setTimeout(() => {
             setGap2((old) => {
               return { row, col, status: "gap" };
             });
-          }, 1500);
+          }, GAP_BLINK_LIFETIME);
           setGap2((old) => {
             return { row, col, status: "blink" };
           });
@@ -215,7 +264,7 @@ function Game() {
             setGap2((old) => {
               return null;
             });
-          }, 4000);
+          }, GAP_LIFETIME);
         }
         break;
       }
@@ -233,67 +282,6 @@ function Game() {
     }
     return count;
   }
-
-  useEffect(() => {
-    if (getCount() !== 0 && gameStatus === "playing") {
-      if (player.row === 0 && player.col === GRID_SIZE - 1) {
-        setGameStatus("won");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
-          return { message: "Verified!", type: "won" };
-        });
-      }
-      if (
-        (player.row !== GRID_SIZE - 1 || player.col !== 0) &&
-        path[player.row][player.col] === 0
-      ) {
-        setGameStatus("lost");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
-          return { message: "You lost!", type: "lost" };
-        });
-      }
-
-      if (
-        path[player.row][player.col] === 1 &&
-        gap?.row === player.row &&
-        gap?.col === player.col &&
-        gap?.status === "gap"
-      ) {
-        setGameStatus("lost");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
-          return { message: "You lost!", type: "lost" };
-        });
-      }
-
-      if (
-        path[player.row][player.col] === 1 &&
-        gap2?.row === player.row &&
-        gap2?.col === player.col &&
-        gap2?.status === "gap"
-      ) {
-        setGameStatus("lost");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
-          return { message: "You lost!", type: "lost" };
-        });
-      }
-    }
-  }, [
-    gameStatus,
-    gap,
-    gap?.row,
-    gap?.col,
-    gap2,
-    gap2?.row,
-    gap2?.col,
-    player.row,
-    player.col,
-    path[0],
-    path[1],
-    path[2],
-    path[3],
-    path[4],
-    path[5],
-    path[6],
-  ]);
 
   function generatePath() {
     setPath((old) => {

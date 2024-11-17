@@ -2,32 +2,25 @@
 
 A fun and interactive CAPTCHA alternative that verifies users by having them guide a knight through a challenging maze to reach the castle.
 
+![Screenshot of the Game](https://github.com/user-attachments/assets/1977c9ce-dfa3-416d-b2ee-18b05eb218eb)
+
 ## Key Features
 
 - Mouse-Driven Gameplay: Ensure all interactions mimic typical CAPTCHA behaviour with mouse-based controls.
 - AI-Resistant Challenges: Introduce dynamic and interactive CAPTCHA tasks to outsmart AI models trained to exploit static CAPTCHAs.
 - Integration with GotCHA: <a href="https://github.com/tcerqueira/gotcha-widget-lib">GotCHA widget library</a> is used for CAPTCHA verification.
-- Lightweight Design: Build a fast, efficient game optimised for web use, ensuring user accessibility across devices.
 - Retro-Themed Gameplay: A pixelated game theme is adopted.
 - Timed challenges: The player battles against the clock to complete the challenge.
-
-![Screenshot of the Game](https://github.com/user-attachments/assets/1977c9ce-dfa3-416d-b2ee-18b05eb218eb)
 
 ## How to Play
 
 - The user must navigate the knight to the castle
 - The knight can move only to adjacent cells i.e. RIGHT, LEFT, TOP, BOTTOM
-- Move the knight by clicking on the adjacent cell.
+- Click on the knight's adjacent cell to move the knight.
 - There are disappearing tiles in the game, they blink for 1 second before disappearing.
 - Disappeared tiles come back to normal after 4 seconds.
 - If the knight falls into the lava, the game is over.
 - Complete the challenge within 30 seconds.
-
-## Live links
-
-- Live Link: <a href="https://game-captcha.vercel.app/">Play Castle Quest</a>
-- Demo Video: <a href="https://youtu.be/MC-0jwkRLFU">YouTube</a>
-- GitHub Repo: <a href="https://github.com/Mano-08/game-captcha">GitHub</a>
 
 ## GotCHA Integration
 
