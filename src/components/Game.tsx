@@ -14,6 +14,8 @@ import {
 
 function Game() {
   const GRID_SIZE = 7;
+  const TIME_LIMIT = 60;
+
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef1 = useRef<NodeJS.Timeout | null>(null);
@@ -21,7 +23,7 @@ function Game() {
   const timeoutRef3 = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef4 = useRef<NodeJS.Timeout | null>(null);
   const timeoutRefTimer = useRef<NodeJS.Timeout | null>(null);
-  const [time, setTime] = useState(120);
+  const [time, setTime] = useState(TIME_LIMIT);
   const [displayInst, setDisplayInst] = useState<boolean>(false);
   const [gap2, setGap2] = useState<{
     row: number;
@@ -34,7 +36,7 @@ function Game() {
     status: "blink" | "gap";
   } | null>(null);
   const [gameStatus, setGameStatus] = useState<
-    "won" | "lost" | "playing" | "not_started" | "restart"
+    "won" | "lost" | "playing" | "not_started"
   >("not_started");
   const [display, setDisplay] = useState<{
     message: string;
@@ -49,19 +51,20 @@ function Game() {
   useEffect(() => {
     if (gameStatus === "playing") {
       generatePath();
-    } else if (gameStatus === "restart") {
-      resetPath();
-      setDisplay({ message: "", type: null });
-      setPlayer((old) => {
-        return { ...old, row: GRID_SIZE - 1, col: 0 };
-      });
-      intervalRef.current && clearInterval(intervalRef.current);
-      timeoutRef1.current && clearTimeout(timeoutRef1.current);
-      timeoutRef2.current && clearTimeout(timeoutRef2.current);
-      timeoutRef3.current && clearTimeout(timeoutRef3.current);
-      timeoutRef4.current && clearTimeout(timeoutRef4.current);
-      setGameStatus("not_started");
     }
+    // else if (gameStatus === "restart") {
+    //   resetPath();
+    //   setDisplay({ message: "", type: null });
+    //   setPlayer((old) => {
+    //     return { ...old, row: GRID_SIZE - 1, col: 0 };
+    //   });
+    //   intervalRef.current && clearInterval(intervalRef.current);
+    //   timeoutRef1.current && clearTimeout(timeoutRef1.current);
+    //   timeoutRef2.current && clearTimeout(timeoutRef2.current);
+    //   timeoutRef3.current && clearTimeout(timeoutRef3.current);
+    //   timeoutRef4.current && clearTimeout(timeoutRef4.current);
+    //   setGameStatus("not_started");
+    // }
   }, [gameStatus]);
 
   function resetPath() {
@@ -73,6 +76,7 @@ function Game() {
 
   const handleGameCaptcha = async (gameStatus: string) => {
     if (gameStatus === "lost") {
+      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
       await onChallengeResponse(false);
     } else if (gameStatus === "won") {
       timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
@@ -377,7 +381,7 @@ function Game() {
                     navigate
                   </li>
                   <li>beware of the the goofy disappearing tiles</li>
-                  <li>complete the challenge within 120 seconds</li>
+                  <li>complete the challenge within {TIME_LIMIT} seconds</li>
                   <li>good luck! the time is ticking</li>
                 </ol>
               </div>
@@ -478,19 +482,26 @@ function Game() {
           </div>
           <div className="flex flex-row items-center justify-between">
             <div className="flex flex-row items-center gap-5">
-              <button onClick={() => setPlayMusic(!playMusic)}>music</button>
-              <button onClick={() => setDisplayInst(!displayInst)}>
+              {gameStatus === "not_started" && (
+                <button
+                  // className="border-solid border-2 rounded-md border-neutral-600 px-1 py-0.5"
+                  onClick={() => setGameStatus("playing")}
+                >
+                  start
+                </button>
+              )}
+              <button
+                // className="py-0.5"
+                onClick={() => setPlayMusic(!playMusic)}
+              >
+                music
+              </button>
+              <button
+                // className="py-0.5"
+                onClick={() => setDisplayInst(!displayInst)}
+              >
                 instructions
               </button>
-              {gameStatus === "not_started" ? (
-                <button onClick={() => setGameStatus("playing")}>start</button>
-              ) : (
-                gameStatus !== "won" && (
-                  <button onClick={() => setGameStatus("restart")}>
-                    reset
-                  </button>
-                )
-              )}
             </div>
             <div className="flex flex-row items-center gap-3">
               <p>{time}s left</p>
