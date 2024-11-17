@@ -27,7 +27,7 @@ An interactive, dynamic and gamified CAPTCHA alternative that verifies users to 
 
 - Live Link: <a href="https://game-captcha.vercel.app/">Play Castle Quest</a>
 - Demo Video: <a href="https://youtu.be/MC-0jwkRLFU">YouTube</a>
-- GitHub Repo: <a href="https://game-captcha.vercel.app">GitHub</a>
+- GitHub Repo: <a href="https://github.com/Mano-08/game-captcha">GitHub</a>
 
 ## GotCHA Integration
 
