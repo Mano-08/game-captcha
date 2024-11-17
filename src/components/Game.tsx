@@ -351,46 +351,48 @@ function Game() {
         <div className="p-10 flex flex-col gap-3 bg-zinc-800 rounded-lg">
           <div className="h-[400px] w-[400px] rounded-md overflow-hidden relative">
             {displayInst && (
-              <div className=" text-white flex flex-col w-full z-[2922992929229] pb-6 top-[25%] left-0 absolute bg-black">
-                <div className="flex flex-row justify-between py-1 border-b border-solid border-neutral-600">
-                  <p className="flex px-4 py-2 text-lg">instructions</p>
-                  {/* <button
+              <div className="flex flex-col justify-center items-center w-full h-full z-[2922992929229]  top-0 left-0 absolute ">
+                <div className="flex flex-col pb-6 w-full bg-black text-white">
+                  <div className="flex flex-row justify-between py-1 border-b border-solid border-neutral-600">
+                    <p className="flex px-4 py-2 text-lg">instructions</p>
+                    {/* <button
                     className="text-red-900 px-3 text-2xl"
                     onClick={() => setDisplayInst(false)}
                   >
                     X
                   </button> */}
+                  </div>
+                  <ol className="list-decimal px-6 py-1">
+                    <li>help knight reach the castle safely</li>
+                    <li>click on knight's adjacent cell to move</li>
+                    <li>beware of the disappearing tiles</li>
+                    <li>tiles blink before they disappear</li>
+                    <li>complete the challenge within {TIME_LIMIT} seconds</li>
+                    <li>good luck!</li>
+                  </ol>
+                  <button
+                    onClick={() => setGameStatus("playing")}
+                    className="bg-green-700 py-1 mt-2 mx-3 rounded-lg text-white"
+                  >
+                    START
+                  </button>
                 </div>
-                <ol className="list-decimal px-6 py-1">
-                  <li>help knight reach the castle safely</li>
-                  <li>click on knight's adjacent cell to move</li>
-                  <li>beware of the disappearing tiles</li>
-                  <li>tiles blink before they disappear</li>
-                  <li>complete the challenge within {TIME_LIMIT} seconds</li>
-                  <li>good luck!</li>
-                </ol>
-                <button
-                  onClick={() => setGameStatus("playing")}
-                  className="bg-green-700 py-1 mt-2 mx-3 rounded-lg text-white"
-                >
-                  START
-                </button>
               </div>
             )}
-            <div
-              style={display.type ? { display: "block" } : { display: "none" }}
-              className="text-center absolute w-full top-[45%] bg-black z-[939393939939] left-0 py-4 "
-            >
-              {display.type && (
-                <div
-                  className={`text-2xl font-bold ${
-                    display.type === "won" ? "text-green-500" : "text-red-500"
-                  }`}
-                >
-                  {display.message}
+
+            {display.type && (
+              <div className="text-center flex flex-col items-center  justify-center absolute h-full w-full top-0 z-[939393939939] left-0  ">
+                <div className="bg-black w-full py-4">
+                  <div
+                    className={`text-2xl font-bold ${
+                      display.type === "won" ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {display.message}
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             {path?.map((row, i) => (
               <div key={"r" + i} className="flex flex-row">
                 {row.map((col, j) => (
