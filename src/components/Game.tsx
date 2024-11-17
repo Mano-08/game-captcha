@@ -24,7 +24,7 @@ function Game() {
   const timeoutRef4 = useRef<NodeJS.Timeout | null>(null);
   const timeoutRefTimer = useRef<NodeJS.Timeout | null>(null);
   const [time, setTime] = useState(TIME_LIMIT);
-  const [displayInst, setDisplayInst] = useState<boolean>(false);
+  const [displayInst, setDisplayInst] = useState<boolean>(true);
   const [gap2, setGap2] = useState<{
     row: number;
     col: number;
@@ -50,6 +50,7 @@ function Game() {
 
   useEffect(() => {
     if (gameStatus === "playing") {
+      setDisplayInst(false);
       generatePath();
     }
     // else if (gameStatus === "restart") {
@@ -364,25 +365,27 @@ function Game() {
         <div className="p-10 flex flex-col gap-3 bg-zinc-800 rounded-lg">
           <div className="h-[400px] w-[400px] rounded-md overflow-hidden relative">
             {displayInst && (
-              <div className=" text-black h-full flex flex-col w-full z-[2922992929229] top-0 left-0 rounded-md absolute bg-orange-400">
-                <div className="flex flex-row justify-between py-2 border-b border-solid border-orange-300">
+              <div className=" text-white flex flex-col w-full z-[2922992929229] pb-6 top-[25%] left-0 absolute bg-black">
+                <div className="flex flex-row justify-between py-1 border-b border-solid border-neutral-600">
                   <p className="flex px-4 py-2 text-lg">instructions</p>
-                  <button
+                  {/* <button
                     className="text-red-900 px-3 text-2xl"
                     onClick={() => setDisplayInst(false)}
                   >
                     X
-                  </button>
+                  </button> */}
                 </div>
-                <ol className="list-decimal px-6">
+                <ol className="list-decimal px-6 py-1">
                   <li>help knight reach the castle safely</li>
-                  <li>
-                    use mouse click on knight's immediate adjacent cell to
-                    navigate
-                  </li>
+                  <li>click on knight's adjacent cell to move</li>
                   <li>beware of the the goofy disappearing tiles</li>
                   <li>complete the challenge within {TIME_LIMIT} seconds</li>
                   <li>good luck! the time is ticking</li>
+                  <li className="text-green-500">
+                    <button onClick={() => setGameStatus("playing")}>
+                      CLICK start to play
+                    </button>
+                  </li>
                 </ol>
               </div>
             )}
@@ -496,12 +499,12 @@ function Game() {
               >
                 music
               </button>
-              <button
+              {/* <button
                 // className="py-0.5"
                 onClick={() => setDisplayInst(!displayInst)}
               >
                 instructions
-              </button>
+              </button> */}
             </div>
             <div className="flex flex-row items-center gap-3">
               <p>{time}s left</p>
