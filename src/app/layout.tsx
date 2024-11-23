@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Pixelify_Sans } from "next/font/google";
+import { Pixelify_Sans, Roboto } from "next/font/google";
 
-const pixel = Pixelify_Sans({
+const pixel = Roboto({
   weight: "400",
   subsets: ["latin"],
 });

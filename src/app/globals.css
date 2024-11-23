@@ -50,3 +50,21 @@ body {
 .animate-blink {
   animation: blink 0.35s infinite;
 }
+
+.slideshow-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: slideshow 3s infinite;
+}
+
+@keyframes slideshow {
+  0%,
+  50% {
+    background-image: url(/howtoplay2.png);
+  }
+  51%,
+  100% {
+    background-image: url(/howtoplay3.png);
+  }
+}

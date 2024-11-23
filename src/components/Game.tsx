@@ -1,4 +1,5 @@
 "use client";
+
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import React from "react";
@@ -6,6 +7,7 @@ import sandImage from "../../public/path.png";
 import lavaImage from "../../public/lava.jpeg";
 import castleImage from "../../public/castle.png";
 import playerImage from "../../public/player.png";
+
 import {
   onChallengeResponse,
   onChallengeExpired,
@@ -38,7 +40,7 @@ function Game() {
     status: "blink" | "gap";
   } | null>(null);
   const [gameStatus, setGameStatus] = useState<
-    "won" | "lost" | "playing" | "not_started" | "expired"
+    "won" | "lost" | "playing" | "not_started" | "restart" | "expired"
   >("not_started");
   const [display, setDisplay] = useState<{
     message: string;
@@ -64,20 +66,21 @@ function Game() {
       }, 1000);
       setDisplayInst(false);
       generatePath();
+    } else if (gameStatus === "restart") {
+      resetPath();
+      setTime(TIME_LIMIT);
+      setDisplayInst(true);
+      setDisplay({ message: "", type: null });
+      setPlayer((old) => {
+        return { ...old, row: GRID_SIZE - 1, col: 0 };
+      });
+      intervalRef.current && clearInterval(intervalRef.current);
+      timeoutRef1.current && clearTimeout(timeoutRef1.current);
+      timeoutRef2.current && clearTimeout(timeoutRef2.current);
+      timeoutRef3.current && clearTimeout(timeoutRef3.current);
+      timeoutRef4.current && clearTimeout(timeoutRef4.current);
+      setGameStatus("not_started");
     }
-    // else if (gameStatus === "restart") {
-    //   resetPath();
-    //   setDisplay({ message: "", type: null });
-    //   setPlayer((old) => {
-    //     return { ...old, row: GRID_SIZE - 1, col: 0 };
-    //   });
-    //   intervalRef.current && clearInterval(intervalRef.current);
-    //   timeoutRef1.current && clearTimeout(timeoutRef1.current);
-    //   timeoutRef2.current && clearTimeout(timeoutRef2.current);
-    //   timeoutRef3.current && clearTimeout(timeoutRef3.current);
-    //   timeoutRef4.current && clearTimeout(timeoutRef4.current);
-    //   setGameStatus("not_started");
-    // }
   }, [gameStatus]);
 
   useEffect(() => {
@@ -348,13 +351,15 @@ function Game() {
   return (
     <main className="w-screen min-h-screen">
       <div className="container mx-auto h-screen flex flex-col items-center justify-center">
-        <div className="p-10 flex flex-col gap-3 bg-zinc-800 rounded-lg">
-          <div className="h-[400px] w-[400px] rounded-md overflow-hidden relative">
+        <div className="p-5 lg:p-10 flex flex-col gap-3 bg-zinc-800 rounded-lg">
+          <div className="h-[300px] w-[300px] lg:h-[400px] lg:w-[400px] rounded-md overflow-hidden relative">
             {displayInst && (
               <div className="flex flex-col justify-center items-center w-full h-full z-[2922992929229]  top-0 left-0 absolute ">
-                <div className="flex flex-col pb-6 w-full bg-black text-white">
+                <div className="flex flex-col pb-6 h-full w-full bg-black text-white">
                   <div className="flex flex-row justify-between py-1 border-b border-solid border-neutral-600">
-                    <p className="flex px-4 py-2 text-lg">instructions</p>
+                    <p className="flex px-4 py-2 text-base lg:text-lg">
+                      Instructions
+                    </p>
                     {/* <button
                     className="text-red-900 px-3 text-2xl"
                     onClick={() => setDisplayInst(false)}
@@ -362,17 +367,20 @@ function Game() {
                     X
                   </button> */}
                   </div>
-                  <ol className="list-decimal px-6 py-1">
-                    <li>help knight reach the castle safely</li>
-                    <li>click on knight's adjacent cell to move</li>
-                    <li>beware of the disappearing tiles</li>
-                    <li>tiles blink before they disappear</li>
-                    <li>complete the challenge within {TIME_LIMIT} seconds</li>
-                    <li>good luck!</li>
+                  <ol className="list-decimal lg:text-base text-xs px-6 py-1">
+                    <li>Help knight reach the castle safely</li>
+                    <li>Click on knight's adjacent cell to move</li>
+                    <li>Beware of the disappearing tiles</li>
+                    <li>Tiles blink before they disappear</li>
+                    <li>Complete the challenge within {TIME_LIMIT} seconds</li>
+                    <li>Good luck!</li>
                   </ol>
+
+                  <div className="slideshow-container mx-auto w-[55px] lg:w-[100px] h-[55px] lg:h-[100px] my-2"></div>
+
                   <button
                     onClick={() => setGameStatus("playing")}
-                    className="bg-green-700 py-1 mt-2 mx-3 rounded-lg text-white"
+                    className="bg-green-700 py-1 text-sm lg:text-base mt-2 mx-3 rounded-lg text-white"
                   >
                     START
                   </button>
@@ -411,7 +419,11 @@ function Game() {
                           ? { display: "block" }
                           : { display: "none" }
                       }
-                      className="absolute top-0 left-0 z-[22020202] bg-black"
+                      className={`absolute h-[${300 / GRID_SIZE}px] w-[${
+                        300 / GRID_SIZE
+                      }px] lg:h-[${400 / GRID_SIZE}px] lg:w-[${
+                        400 / GRID_SIZE
+                      }px] top-0 left-0 z-[22020202] bg-black`}
                     />
                     {col === 1 ? (
                       (gap?.row === i && gap?.col === j) ||
@@ -421,7 +433,11 @@ function Game() {
                             src={sandImage.src}
                             width={400 / GRID_SIZE}
                             height={400 / GRID_SIZE}
-                            className="animate-blink"
+                            className={`animate-blink h-[${
+                              300 / GRID_SIZE
+                            }px] w-[${300 / GRID_SIZE}px] lg:h-[${
+                              400 / GRID_SIZE
+                            }px] lg:w-[${400 / GRID_SIZE}px]`}
                             alt="sand"
                           />
                         ) : (
@@ -429,6 +445,11 @@ function Game() {
                             src={lavaImage.src}
                             width={400 / GRID_SIZE}
                             height={400 / GRID_SIZE}
+                            className={`h-[${300 / GRID_SIZE}px] w-[${
+                              300 / GRID_SIZE
+                            }px] lg:h-[${400 / GRID_SIZE}px] lg:w-[${
+                              400 / GRID_SIZE
+                            }px]`}
                             alt="lava"
                           />
                         )
@@ -437,6 +458,11 @@ function Game() {
                           src={sandImage.src}
                           width={400 / GRID_SIZE}
                           height={400 / GRID_SIZE}
+                          className={`h-[${300 / GRID_SIZE}px] w-[${
+                            300 / GRID_SIZE
+                          }px] lg:h-[${400 / GRID_SIZE}px] lg:w-[${
+                            400 / GRID_SIZE
+                          }px]`}
                           alt="sand"
                         />
                       )
@@ -447,6 +473,11 @@ function Game() {
                         src={sandImage.src}
                         width={400 / GRID_SIZE}
                         height={400 / GRID_SIZE}
+                        className={`h-[${300 / GRID_SIZE}px] w-[${
+                          300 / GRID_SIZE
+                        }px] lg:h-[${400 / GRID_SIZE}px] lg:w-[${
+                          400 / GRID_SIZE
+                        }px]`}
                         alt="sand"
                       />
                     ) : (
@@ -455,16 +486,31 @@ function Game() {
                         width={400 / GRID_SIZE}
                         height={400 / GRID_SIZE}
                         alt="lava"
-                        className="lava-image"
+                        className={`lava-image h-[${300 / GRID_SIZE}px] w-[${
+                          300 / GRID_SIZE
+                        }px] lg:h-[${400 / GRID_SIZE}px] lg:w-[${
+                          400 / GRID_SIZE
+                        }px]`}
                       />
                     )}
                     {player.row === i && player.col === j && (
-                      <div className="absolute w-[80px] h-[80px] top-0 left-0">
+                      <div
+                        className={`absolute lg:w-[${
+                          400 / GRID_SIZE
+                        }px] lg:h-[${400 / GRID_SIZE}px] w-[${
+                          300 / GRID_SIZE
+                        }px] h-[${300 / GRID_SIZE}px] top-0 left-0`}
+                      >
                         <Image
                           src={playerImage.src}
                           width={400 / GRID_SIZE}
                           height={400 / GRID_SIZE}
                           alt="player"
+                          className={`h-[${300 / GRID_SIZE}px] w-[${
+                            300 / GRID_SIZE
+                          }px] lg:h-[${400 / GRID_SIZE}px] lg:w-[${
+                            400 / GRID_SIZE
+                          }px]`}
                         />
                       </div>
                     )}
@@ -477,10 +523,22 @@ function Game() {
             <div className="flex flex-row items-center gap-5">
               <button
                 // className="py-0.5"
+                className="text-sm lg:text-base "
                 onClick={() => setPlayMusic(!playMusic)}
               >
                 music
               </button>
+              {gameStatus === "expired" ||
+              gameStatus === "lost" ||
+              gameStatus === "won" ? (
+                <button
+                  onClick={() => {
+                    setGameStatus("restart");
+                  }}
+                >
+                  reset
+                </button>
+              ) : null}
               {/* <button
                 // className="py-0.5"
                 onClick={() => setDisplayInst(!displayInst)}
@@ -488,7 +546,7 @@ function Game() {
                 instructions
               </button> */}
             </div>
-            <div className="flex flex-row items-center gap-3">
+            <div className="flex flex-row items-center gap-3 text-sm lg:text-base ">
               <p>{time}s left</p>
               <div className="h-3 w-3 bg-red-700 rounded-full"></div>
               <div className="h-3 w-3 bg-green-700 rounded-full"></div>
