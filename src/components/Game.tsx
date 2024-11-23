@@ -349,7 +349,7 @@ function Game() {
     }
   }
   return (
-    <main className="w-screen min-h-screen">
+    <main className="w-screen min-h-screen bg-black">
       <div className="container mx-auto h-screen flex flex-col items-center justify-center">
         <div className="p-5 lg:p-10 flex flex-col gap-3 bg-zinc-800 rounded-lg">
           <div className="h-[300px] w-[300px] lg:h-[400px] lg:w-[400px] rounded-md overflow-hidden relative">
@@ -523,7 +523,7 @@ function Game() {
             <div className="flex flex-row items-center gap-5">
               <button
                 // className="py-0.5"
-                className="text-sm lg:text-base "
+                className="text-sm lg:text-base text-white"
                 onClick={() => setPlayMusic(!playMusic)}
               >
                 music
@@ -535,6 +535,7 @@ function Game() {
                   onClick={() => {
                     setGameStatus("restart");
                   }}
+                  className="text-white"
                 >
                   reset
                 </button>
@@ -546,7 +547,7 @@ function Game() {
                 instructions
               </button> */}
             </div>
-            <div className="flex flex-row items-center gap-3 text-sm lg:text-base ">
+            <div className="flex flex-row text-white items-center gap-3 text-sm lg:text-base ">
               <p>{time}s left</p>
               <div className="h-3 w-3 bg-red-700 rounded-full"></div>
               <div className="h-3 w-3 bg-green-700 rounded-full"></div>
