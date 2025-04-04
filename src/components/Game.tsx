@@ -8,11 +8,7 @@ import lavaImage from "../../public/lava.jpeg";
 import castleImage from "../../public/castle.png";
 import playerImage from "../../public/player.png";
 
-// import {
-//   onChallengeResponse,
-//   onChallengeExpired,
-//   onChallengeError,
-// } from "@gotcha-widget/lib";
+// import { onChallengeResponse, onChallengeError } from "@gotcha-widget/lib";
 
 function Game() {
   const GRID_SIZE = 7; // 7 x 7 grid
@@ -178,8 +174,6 @@ function Game() {
     } else if (gameStatus === "won") {
       timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
       // await onChallengeResponse(true);
-    } else if (gameStatus === "expired") {
-      // await onChallengeExpired();
     }
   };
 

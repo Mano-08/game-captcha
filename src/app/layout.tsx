@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Pixelify_Sans, Roboto } from "next/font/google";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import Script from "next/script";
 import Head from "next/head";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const pixel = Roboto({
   weight: "400",
@@ -41,17 +41,14 @@ export default function RootLayout({
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-51X5W7SDHX"
         ></Script>
-        <Script>{`
-        window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-51X5W7SDHX');
-        `}</Script>
+        <Script>{` window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-51X5W7SDHX');`}</Script>
       </Head>
       <body className={`${pixel.className} antialiased`}>
-        {children}
-        <GoogleAnalytics gaId="G-51X5W7SDHX" />
+        {children} <GoogleAnalytics gaId="G-51X5W7SDHX" />
       </body>
     </html>
   );
