@@ -8,8 +8,6 @@ import lavaImage from "../../public/lava.jpeg";
 import castleImage from "../../public/castle.png";
 import playerImage from "../../public/player.png";
 
-import { onChallengeResponse, onChallengeError } from "@gotcha-widget/lib";
-
 function Game() {
   const GRID_SIZE = 7; // 7 x 7 grid
   const TIME_LIMIT = 30; // in seconds
@@ -170,10 +168,10 @@ function Game() {
   const handleGameCaptcha = async (gameStatus: string) => {
     if (gameStatus === "lost") {
       timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
-      await onChallengeResponse(false);
+      // await onChallengeResponse(false);
     } else if (gameStatus === "won") {
       timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
-      await onChallengeResponse(true);
+      // await onChallengeResponse(true);
     }
   };
 
