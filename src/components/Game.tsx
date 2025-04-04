@@ -8,11 +8,11 @@ import lavaImage from "../../public/lava.jpeg";
 import castleImage from "../../public/castle.png";
 import playerImage from "../../public/player.png";
 
-import {
-  onChallengeResponse,
-  onChallengeExpired,
-  onChallengeError,
-} from "@gotcha-widget/lib";
+// import {
+//   onChallengeResponse,
+//   onChallengeExpired,
+//   onChallengeError,
+// } from "@gotcha-widget/lib";
 
 function Game() {
   const GRID_SIZE = 7; // 7 x 7 grid
@@ -174,12 +174,12 @@ function Game() {
   const handleGameCaptcha = async (gameStatus: string) => {
     if (gameStatus === "lost") {
       timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
-      await onChallengeResponse(false);
+      // await onChallengeResponse(false);
     } else if (gameStatus === "won") {
       timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
-      await onChallengeResponse(true);
+      // await onChallengeResponse(true);
     } else if (gameStatus === "expired") {
-      await onChallengeExpired();
+      // await onChallengeExpired();
     }
   };
 
