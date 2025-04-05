@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Pixelify_Sans, Roboto } from "next/font/google";
+import { Yusei_Magic } from "next/font/google";
 import Script from "next/script";
-import Head from "next/head";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
-const pixel = Roboto({
+const magic = Yusei_Magic({
   weight: "400",
   subsets: ["latin"],
 });
@@ -36,18 +35,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
+      <head>
         <Script
+          id="eslint_id_3053"
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-51X5W7SDHX"
         ></Script>
-        <Script>{` window.dataLayer = window.dataLayer || [];
+        <Script id="eslint_id_3052">{` window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
     
       gtag('config', 'G-51X5W7SDHX');`}</Script>
-      </Head>
-      <body className={`${pixel.className} antialiased`}>
+      </head>
+      <body className={`${magic.className} antialiased`}>
         {children} <GoogleAnalytics gaId="G-51X5W7SDHX" />
       </body>
     </html>

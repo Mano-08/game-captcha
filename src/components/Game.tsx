@@ -51,7 +51,7 @@ function Game() {
       timeoutRefTimer.current = setInterval(() => {
         setTime((prevTime) => {
           if (prevTime - 1 <= 0) {
-            timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+            if (timeoutRefTimer.current) clearInterval(timeoutRefTimer.current);
             setDisplay({ message: "EXPIRED", type: "lost" });
             setGameStatus("expired");
           }
@@ -68,11 +68,11 @@ function Game() {
       setPlayer((old) => {
         return { ...old, row: GRID_SIZE - 1, col: 0 };
       });
-      intervalRef.current && clearInterval(intervalRef.current);
-      timeoutRef1.current && clearTimeout(timeoutRef1.current);
-      timeoutRef2.current && clearTimeout(timeoutRef2.current);
-      timeoutRef3.current && clearTimeout(timeoutRef3.current);
-      timeoutRef4.current && clearTimeout(timeoutRef4.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef1.current) clearTimeout(timeoutRef1.current);
+      if (timeoutRef2.current) clearTimeout(timeoutRef2.current);
+      if (timeoutRef3.current) clearTimeout(timeoutRef3.current);
+      if (timeoutRef4.current) clearTimeout(timeoutRef4.current);
       setGameStatus("not_started");
     }
   }, [gameStatus]);
@@ -88,8 +88,8 @@ function Game() {
   }, []);
 
   useEffect(() => {
-    playMusic && (musicRef.current as HTMLAudioElement)?.play();
-    !playMusic && (musicRef.current as HTMLAudioElement)?.pause();
+    if (playMusic) (musicRef.current as HTMLAudioElement)?.play();
+    if (!playMusic) (musicRef.current as HTMLAudioElement)?.pause();
   }, [playMusic]);
 
   useEffect(() => {
@@ -107,7 +107,7 @@ function Game() {
     if (getCount() !== 0 && gameStatus === "playing") {
       if (player.row === 0 && player.col === GRID_SIZE - 1) {
         setGameStatus("won");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+        setDisplay(() => {
           return { message: "Verified!", type: "won" };
         });
       }
@@ -116,7 +116,7 @@ function Game() {
         path[player.row][player.col] === 0
       ) {
         setGameStatus("lost");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+        setDisplay(() => {
           return { message: "You lost!", type: "lost" };
         });
       }
@@ -128,7 +128,7 @@ function Game() {
         gap?.status === "gap"
       ) {
         setGameStatus("lost");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+        setDisplay(() => {
           return { message: "You lost!", type: "lost" };
         });
       }
@@ -140,7 +140,7 @@ function Game() {
         gap2?.status === "gap"
       ) {
         setGameStatus("lost");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+        setDisplay(() => {
           return { message: "You lost!", type: "lost" };
         });
       }
@@ -160,18 +160,21 @@ function Game() {
 
   function resetPath() {
     setPath((old) => {
-      const newPath = old.map((row) => row.map((col) => 0));
+      const newPath = old.map((row) => row.map(() => 0));
       return newPath;
     });
   }
 
   const handleGameCaptcha = async (gameStatus: string) => {
     if (gameStatus === "lost") {
-      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+      if (timeoutRefTimer.current) clearInterval(timeoutRefTimer.current);
       // await onChallengeResponse(false);
     } else if (gameStatus === "won") {
-      timeoutRefTimer.current && clearInterval(timeoutRefTimer.current);
+      if (timeoutRefTimer.current) clearInterval(timeoutRefTimer.current);
       // await onChallengeResponse(true);
+    } else if (gameStatus === "expired") {
+      if (timeoutRefTimer.current) clearInterval(timeoutRefTimer.current);
+      // await onChallengeResponse(false);
     }
   };
 
@@ -224,8 +227,8 @@ function Game() {
 
   function generateGap(type: "GAP_2" | "GAP_1") {
     while (true) {
-      let row = Math.floor(Math.random() * GRID_SIZE);
-      let col = Math.floor(Math.random() * GRID_SIZE);
+      const row = Math.floor(Math.random() * GRID_SIZE);
+      const col = Math.floor(Math.random() * GRID_SIZE);
 
       // don't generate gap on castle
       if (row === 0 && col === GRID_SIZE - 1) {
@@ -240,29 +243,29 @@ function Game() {
       if (path[row][col] === 1) {
         if (type === "GAP_1") {
           timeoutRef1.current = setTimeout(() => {
-            setGap((old) => {
+            setGap(() => {
               return { row, col, status: "gap" };
             });
           }, GAP_BLINK_LIFETIME);
-          setGap((old) => {
+          setGap(() => {
             return { row, col, status: "blink" };
           });
           timeoutRef2.current = setTimeout(() => {
-            setGap((old) => {
+            setGap(() => {
               return null;
             });
           }, GAP_LIFETIME);
         } else {
           timeoutRef3.current = setTimeout(() => {
-            setGap2((old) => {
+            setGap2(() => {
               return { row, col, status: "gap" };
             });
           }, GAP_BLINK_LIFETIME);
-          setGap2((old) => {
+          setGap2(() => {
             return { row, col, status: "blink" };
           });
           timeoutRef4.current = setTimeout(() => {
-            setGap2((old) => {
+            setGap2(() => {
               return null;
             });
           }, GAP_LIFETIME);
@@ -290,7 +293,7 @@ function Game() {
       const newPath = old.map((row) => row.map((col) => col));
       newPath[GRID_SIZE - 1][0] = 1;
       while (coord.row !== 0 || coord.col !== GRID_SIZE - 1) {
-        let direction = Math.floor(Math.random() * 2) === 0 ? "RIGHT" : "UP";
+        const direction = Math.floor(Math.random() * 2) === 0 ? "RIGHT" : "UP";
         if (direction === "RIGHT") {
           if (coord.col === GRID_SIZE - 1) {
             for (let i = coord.row - 1; i >= 0; i--) {
@@ -324,7 +327,7 @@ function Game() {
     ) {
       if (col === 0) {
         setGameStatus("lost");
-        setDisplay((old: { message: string; type: "won" | "lost" | null }) => {
+        setDisplay(() => {
           return { message: "You lost!", type: "lost" };
         });
       }
@@ -361,7 +364,7 @@ function Game() {
                   </div>
                   <ol className="list-decimal lg:text-base text-xs px-6 py-1">
                     <li>Help knight reach the castle safely</li>
-                    <li>Click on knight's adjacent cell to move</li>
+                    <li>Click on knight&apos;s adjacent cell to move</li>
                     <li>Beware of the disappearing tiles</li>
                     <li>Tiles blink before they disappear</li>
                     <li>Complete the challenge within {TIME_LIMIT} seconds</li>
@@ -372,7 +375,7 @@ function Game() {
 
                   <button
                     onClick={() => setGameStatus("playing")}
-                    className="bg-green-700 py-1 text-sm lg:text-base mt-2 mx-3 rounded-lg text-white"
+                    className="bg-green-700 py-1 text-sm lg:text-base mt-2 mx-3 rounded-lg text-white cursor-pointer "
                   >
                     START
                   </button>
